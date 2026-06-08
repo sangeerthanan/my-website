@@ -1,0 +1,44 @@
+{
+  "name": "jeganathan-portfolio",
+  "version": "1.0.0",
+  "description": "Premium Portfolio Website for Jeganathan Sangeerthanan - Embedded Systems Engineer",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,json,css,md}\""
+  },
+  "overrides": {
+    "ts-interface-checker": "1.0.2"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.3.4",
+    "axios": "^1.6.2",
+    "clsx": "^2.0.0",
+    "framer-motion": "^11.0.0",
+    "lucide-react": "latest",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.50.0",
+    "tailwind-merge": "^2.2.0",
+    "three": "^0.175.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.16",
+    "braces": "^3.0.2",
+    "eslint": "^8.55.0",
+    "eslint-config-next": "^15.0.0",
+    "postcss": "^8.4.32",
+    "prettier": "^3.1.0",
+    "prettier-plugin-tailwindcss": "^0.5.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.0"
+  }
+}
