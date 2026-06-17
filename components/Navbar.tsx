@@ -41,7 +41,7 @@ export default function Navbar() {
             className="flex items-center gap-2"
           >
             <Link href="#" className="font-heading font-bold text-xl gradient-text">
-              JEGANATHAN
+              SANGEERTHANAN
             </Link>
           </motion.div>
 

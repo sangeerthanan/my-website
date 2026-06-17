@@ -6,7 +6,7 @@ import { Briefcase, BookOpen, Code } from 'lucide-react';
 export default function About() {
   const timelineItems = [
     {
-      year: '2023 - Present',
+      year: 'September 2025 - Present',
       title: 'Associate Engineer – R&D Electronics & Embedded Systems',
       company: 'Oculus International (Pvt) Ltd',
       description:
@@ -14,7 +14,7 @@ export default function About() {
       icon: Briefcase,
     },
     {
-      year: '2022',
+      year: ' February 2025 - August 2025',
       title: 'Engineer Intern – Fire Alarm Systems',
       company: 'Diesel and Motor Engineering PLC',
       description:

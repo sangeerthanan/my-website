@@ -1,12 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// This is a placeholder API route for the contact form
-// In production, integrate with your email service (SendGrid, Nodemailer, etc.)
+interface ContactBody {
+  name?: string;
+  email?: string;
+  subject?: string;
+  message?: string;
+}
+
+const contactEmail = process.env.CONTACT_TO_EMAIL || 'sangeerthananthanan@gmail.com';
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+const toText = ({ name, email, subject, message }: Required<ContactBody>) =>
+  [
+    'New contact form submission',
+    '',
+    `Name: ${name}`,
+    `Email: ${email}`,
+    `Subject: ${subject}`,
+    '',
+    message,
+  ].join('\n');
+
+const toHtml = ({ name, email, subject, message }: Required<ContactBody>) => `
+  <h2>New Contact Form Submission</h2>
+  <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+  <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+  <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+  <p><strong>Message:</strong></p>
+  <p>${escapeHtml(message).replace(/\n/g, '<br />')}</p>
+`;
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, email, subject, message } = body;
+    const body = (await request.json()) as ContactBody;
+    const name = body.name?.trim() || '';
+    const email = body.email?.trim() || '';
+    const subject = body.subject?.trim() || '';
+    const message = body.message?.trim() || '';
 
     // Validate required fields
     if (!name || !email || !subject || !message) {
@@ -25,26 +62,45 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Integrate with your email service
-    // Example with SendGrid:
-    // const sgMail = require('@sendgrid/mail');
-    // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    // await sgMail.send({
-    //   to: 'sangeerthananjhanan@gmail.com',
-    //   from: 'noreply@jeganathan.dev',
-    //   subject: `New Portfolio Message: ${subject}`,
-    //   html: `
-    //     <h2>New Contact Form Submission</h2>
-    //     <p><strong>Name:</strong> ${name}</p>
-    //     <p><strong>Email:</strong> ${email}</p>
-    //     <p><strong>Subject:</strong> ${subject}</p>
-    //     <p><strong>Message:</strong></p>
-    //     <p>${message}</p>
-    //   `,
-    // });
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const fromEmail =
+      process.env.CONTACT_FROM_EMAIL || 'Portfolio Contact <onboarding@resend.dev>';
 
-    // Log to console in development
-    console.log('Contact form submission:', { name, email, subject, message });
+    if (!resendApiKey) {
+      console.log('Contact form submission:', { name, email, subject, message });
+      return NextResponse.json(
+        {
+          error:
+            'Email service is not configured. Please email me directly using the contact details.',
+        },
+        { status: 500 }
+      );
+    }
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [contactEmail],
+        reply_to: email,
+        subject: `Portfolio contact: ${subject}`,
+        text: toText({ name, email, subject, message }),
+        html: toHtml({ name, email, subject, message }),
+      }),
+    });
+
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error('Email service error:', errorText);
+      return NextResponse.json(
+        { error: 'Failed to send message. Please email me directly.' },
+        { status: 502 }
+      );
+    }
 
     // Return success response
     return NextResponse.json(

@@ -29,6 +29,7 @@ export default function Contact() {
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle');
+  const [statusMessage, setStatusMessage] = useState('');
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
   const contactInfo = [
@@ -42,8 +43,8 @@ export default function Contact() {
     {
       icon: Mail,
       label: 'Email',
-      value: 'sangeerthananjhanan@gmail.com',
-      href: 'mailto:sangeerthananjhanan@gmail.com',
+      value: 'sangeerthananthanan@gmail.com',
+      href: 'mailto:sangeerthananthanan@gmail.com',
       color: 'from-secondary to-purple-400',
     },
     {
@@ -76,6 +77,7 @@ export default function Contact() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setStatusMessage('');
     if (errors[name as keyof FormData]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -83,6 +85,7 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatusMessage('');
 
     if (!validateForm()) {
       setStatus('error');
@@ -92,24 +95,33 @@ export default function Contact() {
     setStatus('loading');
 
     try {
-      // Simulate email sending
-      // In production, integrate with your backend service (SendGrid, Nodemailer, etc.)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-      // You would typically send to your backend:
-      // const response = await fetch('/api/contact', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(result?.error || 'Failed to send message');
+      }
 
       setStatus('success');
+      setStatusMessage(
+        result?.message || "Message sent successfully! I'll get back to you soon."
+      );
       setFormData({ name: '', email: '', subject: '', message: '' });
 
       // Reset success message after 5 seconds
       setTimeout(() => setStatus('idle'), 5000);
     } catch (error) {
       setStatus('error');
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : 'Failed to send message. Please email me directly.'
+      );
       setTimeout(() => setStatus('idle'), 5000);
     }
   };
@@ -305,7 +317,7 @@ export default function Contact() {
                 >
                   <CheckCircle size={20} />
                   <span className="text-sm font-semibold">
-                    Message sent successfully! I'll get back to you soon.
+                    {statusMessage}
                   </span>
                 </motion.div>
               )}
@@ -319,6 +331,19 @@ export default function Contact() {
                   <AlertCircle size={20} />
                   <span className="text-sm font-semibold">
                     Please fix the errors above
+                  </span>
+                </motion.div>
+              )}
+
+              {status === 'error' && Object.keys(errors).length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-4 rounded-lg bg-red-500/10 border border-red-500/50 text-red-400"
+                >
+                  <AlertCircle size={20} />
+                  <span className="text-sm font-semibold">
+                    {statusMessage || 'Failed to send message'}
                   </span>
                 </motion.div>
               )}

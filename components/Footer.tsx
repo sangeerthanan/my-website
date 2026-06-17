@@ -22,7 +22,7 @@ export default function Footer() {
     {
       name: 'Email',
       icon: Mail,
-      href: 'mailto:sangeerthananjhanan@gmail.com',
+      href: 'mailto:sangeerthananthanan@gmail.com',
       label: 'Send Email',
     },
   ];
@@ -38,7 +38,7 @@ export default function Footer() {
             transition={{ duration: 0.5 }}
           >
             <h3 className="font-heading font-bold text-xl gradient-text mb-4">
-              JEGANATHAN
+              SANGEERTHANAN
             </h3>
             <p className="text-muted-text text-sm max-w-xs">
               Building intelligent embedded systems and IoT solutions that bridge hardware and software.
